@@ -6,7 +6,7 @@ conn = mysql.connector.connect(
 
     host = "localhost",                    #  ========  Adresse du serveur MySQL =======
     user ="root",                            # ========= Nom d'utilisateur MySQL =========
-    password = "Sante@2026",                   # ========== Mot de passe MySQL===============
+    password = "",                   # ========== Mot de passe MySQL===============
     database= "Boutique_du_quartier"            # ==========  Nom de la base de données==================
 )
 
@@ -30,7 +30,7 @@ def Ajouter_produit ():
 
     sql ="insert into produits (nom , categorie , prix ,quantite) values (%s, %s, %s, %s)" 
 
-   # Exécution de la requête avec les valeurs saisies
+  # Exécution de la requête avec les valeurs saisies
 
     curseur.execute (sql,(nom , categorie , prix ,quantite))
 
