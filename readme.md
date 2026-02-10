@@ -1,7 +1,5 @@
 # Projet Python - Gestion de Boutique avec MySQL
 
-Ce document explique le fonctionnement du programme Python de gestion de boutique utilisant MySQL.  
-Il est destiné au coach, au correcteur ou à un débutant qui souhaite comprendre rapidement le code.
 
 ---
 
