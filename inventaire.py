@@ -1,4 +1,6 @@
 import mysql.connector
+import hashlib
+
 
 #connexion a la base de données
 
@@ -6,13 +8,73 @@ conn = mysql.connector.connect(
 
     host = "localhost",                    #  ========  Adresse du serveur MySQL =======
     user ="root",                            # ========= Nom d'utilisateur MySQL =========
-    password = "",                   # ========== Mot de passe MySQL===============
+    password = "Sante@2026",                   # ========== Mot de passe MySQL===============
     database= "Boutique_du_quartier"            # ==========  Nom de la base de données==================
 )
 
 curseur = conn.cursor()         # Création du curseur pour exécuter les requêtes SQL
 
+def securite(mot_de_passe):
+    return hashlib.sha256(mot_de_passe.encode()).hexdigest()
+    
+    
+def authentification():
+  while True:  
+        choix = input("""
+            1.se connecter
+            2.inscription
+            0.annuler
+            """)
+        if choix =="1":
+            connexion ()
+        elif choix =="2": 
+            inscription ()
+        else:
+            print("choix invalide")      
+        
+    
+
+#====================================INSCRIPTION=============================================#
+
+def inscription ():
+    
+    nom = input("nom: ")
+    prenom = input("prenom: ")
+    email = input("email: ")
+    mot_de_passe = input ("mot_de_passe: ")
+    mot_de_passe_hash = securite(mot_de_passe)
+    user="insert into utilisateurs (prenom , nom , email ,mot_de_passe) values (%s, %s, %s, %s)" 
+    role = input("choisir un role")
+    if role not in ("admin","utilisateur_simple"):
+        print("role invalide")
+    curseur.execute(user,(prenom,nom,email,mot_de_passe_hash))
+    
+    conn.commit()
+    main()
+    
+#========================================CONNEXiON=============================================#
+
+
+def connexion ():
+    
+    email = input("veuillez entrer votre email: ")
+    
+    mot_de_passe = input("veuillez entrer votre mot de passe: ")
+    mot_de_passe_hash = securite(mot_de_passe)
+    base = "select * from utilisateurs where email =%s "
+    curseur.execute(base,(email,))
+    mdp=curseur.fetchone()
+    
+    if mot_de_passe_hash == mdp[4]:
+        main()
+    else:
+        print("mot_de_passe invalide")    
+    
+   
+        
+         
 #===============================LA FONCTION POUR AJOUTER DES PRODUITS ===============================#
+
 
 def Ajouter_produit ():
 
@@ -32,10 +94,9 @@ def Ajouter_produit ():
 
   # Exécution de la requête avec les valeurs saisies
 
-    curseur.execute (sql,(nom , categorie , prix ,quantite))
+    curseur.execute(sql,(nom , categorie , prix ,quantite))
 
     # Validation de l'insertion dans la base de données
-
     conn.commit()
 
     print("produit ajouté")
@@ -44,8 +105,6 @@ def Ajouter_produit ():
 
 
 def liste_inventaire ():
-
-         
 
     curseur.execute("select * from produits")
 
@@ -61,17 +120,31 @@ def liste_inventaire ():
 
 def Mettre_a_jour():
 
-    id_prod = int(input("id du produit: "))
+    while True:
 
-    nouvelle_quantite = int (input("nouvelle quantite: "))
-    
-    sql = "update produits set quantite = %s where id = %s"
+        id_prod = str(input("id du produit: ")).strip()
 
-    curseur.execute(sql,(nouvelle_quantite, id_prod))
+        if id_prod:
+            while True:
 
-    conn.commit()
+                nouvelle_quantite = input("nouvelle quantite: ")
+                
+                if nouvelle_quantite.isnumeric():
+                    break
+                else:
+                    print("quantité incorrect met le nombre")
+            
+            sql = "update produits set quantite = %s where id = %s"
 
-    print("quantite mise a jour")
+            curseur.execute(sql,(nouvelle_quantite, id_prod))
+
+            conn.commit()
+
+            break
+
+        else:
+            continue
+        print("quantite mise a jour")
 
 #====================================================LA FONCTION POUR RECHERCHER LES PRODUITS ===========================================
 
@@ -135,46 +208,54 @@ def dashboard ():
 
 #===================================LE MENU POUR LE PROGRAMME =======================================
 def menu ():
-
+    
+    
     print("""
-          
-    1.Ajouter un produit
-    2.Lister l'inventaire
-    3.Mettre à jour le stock
-    4.Rechercher un produit
-    5.Supprimer un produit
-    6.Dashboard
-    7.quitter                                    
+    1.Authentification
+    2.Insciption      
+    3.Ajouter un produit
+    4.Lister l'inventaire
+    5.Mettre à jour le stock
+    6.Rechercher un produit
+    7.Supprimer un produit
+    8.Dashboard
+    0.quitter                                    
 
     """)
-menu()   
+  
 
 def main():
     while True:
-        
+        menu() 
         
 
         choix = input ("choisi une option: ")
+        
+        if choix == "1":
+            authentification()
+        
+        if choix == "2":
+            inscription ()
 
-        if choix =="1":
+        if choix =="3":
             Ajouter_produit ()
 
-        elif choix == "2":
+        elif choix == "4":
             liste_inventaire ()
 
-        elif choix == "3":  
+        elif choix == "5":  
             Mettre_a_jour()  
 
-        elif choix == "4":
+        elif choix == "6":
             rechercher_produit()
 
-        elif choix == "5":
+        elif choix == "7":
             supprimer_produits ()
 
-        elif choix == "6":
+        elif choix == "8":
             dashboard ()
 
-        elif choix == "7":
+        elif choix == "0":
             
 
             print ("au revoir")
@@ -183,7 +264,7 @@ def main():
         else:
             print("choix invalide")
                            
-main()
+authentification()
 
     
 
